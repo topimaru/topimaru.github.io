@@ -25,7 +25,7 @@
   },
   "scripts": {
     "start": "concurrently \"react-scripts start\" \"ts-node server/index.ts\"",
-    "build": "react-scripts build",
+    "build": "BUILD_PATH='./docs' react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -53,5 +53,6 @@
     "concurrently": "^6.5.1",
     "ts-node": "^10.4.0",
     "ts-node-dev": "^1.1.8"
-  }
+  },
+  "homepage": "."
 }
