@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 
 import { colorToHex, draw } from "./utils/braille";
 
+const ENDPOINT = "https://3vqvwv089j.execute-api.us-east-1.amazonaws.com/prod";
 const markdownString = `
 # 免責歩合約款
 
@@ -24,42 +25,42 @@ const markdownString = `
 HttpCanaryをダウンロードして、最初の案内通り設置を行ってください。
 
 ⚠️ 下の画面が現れる時は**SKIP（スキップ）ボタン**を押してください。
-![Skip（スキップ）ボタンを押してください。](/images/1.png)
+![Skip（スキップ）ボタンを押してください。](images/1.png)
 
 ⚠️ 下の画面が現れる時は**右上のSKIP（スキップ）ボタン**を押してください。
-![Skip（スキップ）ボタンを押してください。](/images/2.png)
+![Skip（スキップ）ボタンを押してください。](images/2.png)
 
 ## 2. トピアのアプリを監視
 
 左からメニューを開けて**Target Apps**ボタンを押してください。そして**右上のプラスボタン**を押して**トピアを選択**してください。
 
-![右上のプラスボタンを押してください。](/images/3.png)
+![右上のプラスボタンを押してください。](images/3.png)
 
-![トピアを選択してください。](/images/4.png)
+![トピアを選択してください。](images/4.png)
 
 **バックボタン**を押してメインページに戻る後、**右下の紙飛行機のボタン**を押してください。
 
-![右下の紙飛行機のボタンを押してください。](/images/5.png)
+![右下の紙飛行機のボタンを押してください。](images/5.png)
 
 ## 3. トピアを開く
 
 そのまま**HttpCanaryアプリをバッググラウンド状態**にして、トピアを開いてください。ローディングが終わるまで少しお待ちください。
 
-![トピアを開いてください。](/images/6.png)
+![トピアを開いてください。](images/6.png)
 
 ## 4. 「トークン」をコピー
 
 HttpCanaryアプリに戻って紙飛行機ボタンをもう一回押して監視を解除します。そして、一番下にある**https://api.topia.tv/self**を押してください。
 
-![https://api.topia.tv/selfを押してください。](/images/7.png)
+![https://api.topia.tv/selfを押してください。](images/7.png)
 
 上の**Request**メニューをタップしたら下の画面が見れます。
 
-![Requestメニューをタップしてください。](/images/8.png)
+![Requestメニューをタップしてください。](images/8.png)
 
 一番長い**authorization**って書いている項目を押して**Copy Value**ボタンを押したら完了です！トークンがクリップボードにコピーできました。あの文字列をペーストしてください。
 
-![authorization項目をCopy Valueしてください。](/images/9.png)
+![authorization項目をCopy Valueしてください。](images/9.png)
 `;
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
 
   const [string, setString] = useState("");
   const [token, setToken] = useState("");
+  const [version, setVersion] = useState<string | null>(null);
   const [tokenStatus, setTokenStatus] = useState<boolean | null>(false);
   const [instructionVisible, setInstructionVisible] = useState(false);
   const [m, setM] = useState(3);
@@ -88,6 +90,16 @@ function App() {
   }, []);
 
   useEffect(() => {
+    fetch(`${ENDPOINT}/version`)
+      .then(async (response) => {
+        setVersion((await response.json()).version);
+      })
+      .catch(() => {
+        setVersion("v???");
+      });
+  }, []);
+
+  useEffect(() => {
     setTokenStatus(null);
     if (!token) {
       setTokenStatus(false);
@@ -100,13 +112,10 @@ function App() {
         return;
       }
 
-      fetch(
-        "https://g76vv6ys0j.execute-api.us-east-1.amazonaws.com/dev/validate",
-        {
-          method: "POST",
-          body: token,
-        }
-      )
+      fetch(`${ENDPOINT}/validate`, {
+        method: "POST",
+        body: token,
+      })
         .then((response) => response.json())
         .then((response) => {
           if (response.success) {
@@ -176,7 +185,7 @@ function App() {
 
     setSubmitting(true);
 
-    fetch("https://g76vv6ys0j.execute-api.us-east-1.amazonaws.com/dev/", {
+    fetch(ENDPOINT, {
       method: "POST",
       body: JSON.stringify({ token, string }),
     })
@@ -222,13 +231,14 @@ function App() {
               borderRadius: "32px",
               padding: "32px",
               color: "black",
+              position: "relative",
             }}
           >
             <div
               style={{
                 position: "absolute",
-                top: 64,
-                right: 64,
+                top: 32,
+                right: 32,
                 fontSize: "2rem",
                 cursor: "pointer",
                 userSelect: "none",
@@ -295,6 +305,20 @@ function App() {
               onClick={() => setInstructionVisible(true)}
             >
               ➡️ 「トークン」って何だ?
+            </div>
+            <div
+              style={{
+                height: "24px",
+                lineHeight: "24px",
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "0 8px 0px",
+                width: "fit-content",
+                fontSize: "13px",
+                fontWeight: "900",
+              }}
+            >
+              {version ?? "Loading..."}
             </div>
           </div>
           <div
