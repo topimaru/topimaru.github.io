@@ -6,12 +6,11 @@ import { RecoilRoot } from "recoil";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { basename } from "./utils/basename";
 
 ReactDOM.render(
   <React.StrictMode>
     <RecoilRoot>
-      <BrowserRouter basename={basename}>
+      <BrowserRouter>
         <App />
       </BrowserRouter>
     </RecoilRoot>
