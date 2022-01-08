@@ -1,17 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
+import { RecoilRoot } from "recoil";
+
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { RecoilRoot } from "recoil";
+import { basename } from "./utils/basename";
 
 ReactDOM.render(
   <React.StrictMode>
     <RecoilRoot>
-      <BrowserRouter
-        basename={process.env.NODE_ENV === "production" ? "/topia-tools" : "/"}
-      >
+      <BrowserRouter basename={basename}>
         <App />
       </BrowserRouter>
     </RecoilRoot>

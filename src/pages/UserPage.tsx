@@ -4,9 +4,9 @@ import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import Spinner from "../components/Spinner";
 
-import User from "../components/User";
 import { userCacheState } from "../recoil/users";
 import { useApi } from "../utils/api";
+import { basename } from "../utils/basename";
 
 type ExtendedUser = {
   id: number;
@@ -121,7 +121,7 @@ const UserPageComponent: FunctionComponent<Props> = ({
               alt="Twitterのアイコン"
               title="Twitterのアイコン"
               className="absolute right-0 bottom-0 w-8 h-8 rounded-full cursor-pointer"
-              src="/images/twitter.svg"
+              src={`${basename}/images/twitter.svg`}
             />
           </div>
           <div className="flex-1 px-4 py-2 bg-gray-100 rounded-2xl overflow-y-clip">
@@ -232,6 +232,7 @@ const UserPage: FunctionComponent = () => {
     api("GET", `/users/${numericalUserId}`).then((newUser: ExtendedUser) => {
       setUser(newUser);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!api, numericalUserId]);
 
   if (numericalUserId === -1) {

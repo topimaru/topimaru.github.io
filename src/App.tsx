@@ -1,8 +1,7 @@
-import { FunctionComponent, useEffect, useRef, useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { FunctionComponent } from "react";
+import { Routes, Route } from "react-router-dom";
 import Global from "./components/Global";
 
-import User from "./components/User";
 import SearchPage from "./pages/SearchPage";
 import UserPage from "./pages/UserPage";
 
