@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "./static/css/main.2e222f65.css",
-    "main.js": "./static/js/main.e4f4b26d.js",
-    "static/js/787.95b65b01.chunk.js": "./static/js/787.95b65b01.chunk.js",
-    "index.html": "./index.html",
-    "main.2e222f65.css.map": "./static/css/main.2e222f65.css.map",
-    "main.e4f4b26d.js.map": "./static/js/main.e4f4b26d.js.map",
-    "787.95b65b01.chunk.js.map": "./static/js/787.95b65b01.chunk.js.map"
+    "main.css": "/topia-tools/static/css/main.2e222f65.css",
+    "main.js": "/topia-tools/static/js/main.fedbe997.js",
+    "static/js/787.95b65b01.chunk.js": "/topia-tools/static/js/787.95b65b01.chunk.js",
+    "index.html": "/topia-tools/index.html",
+    "main.2e222f65.css.map": "/topia-tools/static/css/main.2e222f65.css.map",
+    "main.fedbe997.js.map": "/topia-tools/static/js/main.fedbe997.js.map",
+    "787.95b65b01.chunk.js.map": "/topia-tools/static/js/787.95b65b01.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.2e222f65.css",
-    "static/js/main.e4f4b26d.js"
+    "static/js/main.fedbe997.js"
   ]
 }
