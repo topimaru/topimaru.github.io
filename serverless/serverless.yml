@@ -1,0 +1,44 @@
+org: kimkanu
+app: topia-comments
+service: topia-comments
+
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: "20201221"
+  environment:
+    FIREBASE_type: ${param:FIREBASE_type}
+    FIREBASE_project_id: ${param:FIREBASE_project_id}
+    FIREBASE_private_key_id: ${param:FIREBASE_private_key_id}
+    FIREBASE_private_key: ${param:FIREBASE_private_key}
+    FIREBASE_client_email: ${param:FIREBASE_client_email}
+    FIREBASE_client_id: ${param:FIREBASE_client_id}
+    FIREBASE_auth_uri: ${param:FIREBASE_auth_uri}
+    FIREBASE_token_uri: ${param:FIREBASE_token_uri}
+    FIREBASE_auth_provider_x509_cert_url: ${param:FIREBASE_auth_provider_x509_cert_url}
+    FIREBASE_client_x509_cert_url: ${param:FIREBASE_client_x509_cert_url}
+
+functions:
+  api:
+    handler: handler.handler
+    events:
+      - http:
+          path: /
+          cors: true
+          method: GET
+      - http:
+          path: /v1/users/{id}
+          cors: true
+          method: GET
+      - http:
+          path: /v1/users/{id}/ff
+          cors: true
+          method: GET
+      - http:
+          path: /v1/users/{id}/repertory
+          cors: true
+          method: GET
+
+useDotenv: true

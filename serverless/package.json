@@ -1,0 +1,19 @@
+{
+  "name": "aws-node-express-api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "../node_modules/.bin/tsc src/handler.ts --esModuleInterop --outDir .",
+    "deploy": "yarn build && serverless deploy --stage prod"
+  },
+  "dependencies": {
+    "axios": "^0.24.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "firebase-admin": "^10.0.1",
+    "serverless-http": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.12"
+  }
+}

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
@@ -18,16 +19,20 @@
     "lodash": "^4.17.21",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-infinite-scroll-hook": "^4.0.1",
     "react-markdown": "^7.1.1",
+    "react-router-dom": "6",
     "react-scripts": "5.0.0",
+    "recoil": "^0.5.2",
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
-    "start": "concurrently \"react-scripts start\" \"ts-node server/index.ts\"",
+    "start": "react-scripts start",
     "build": "BUILD_PATH='./docs' react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postinstall": "rm -rf  ../node_modules/@types/eslint-scope"
   },
   "eslintConfig": {
     "extends": [
@@ -50,7 +55,10 @@
   "devDependencies": {
     "@types/got": "^9.6.12",
     "@types/lodash": "^4.14.178",
+    "autoprefixer": "^10.4.2",
     "concurrently": "^6.5.1",
+    "postcss": "^8.4.5",
+    "tailwindcss": "^3.0.12",
     "ts-node": "^10.4.0",
     "ts-node-dev": "^1.1.8"
   },

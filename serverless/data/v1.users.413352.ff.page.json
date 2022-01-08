@@ -1,0 +1,7 @@
+{
+  "path": "/v1/users/413352/ff",
+  "queryStringParameters": {
+    "page": 1
+  },
+  "httpMethod": "GET"
+}

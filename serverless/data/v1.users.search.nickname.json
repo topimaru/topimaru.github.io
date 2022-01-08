@@ -1,0 +1,7 @@
+{
+  "path": "/v1/users/search",
+  "queryStringParameters": {
+    "nickname": "おにちゃん"
+  },
+  "httpMethod": "GET"
+}

@@ -1,0 +1,7 @@
+{
+  "path": "/v1/users/427914/repertory",
+  "queryStringParameters": {
+    "name": "雷"
+  },
+  "httpMethod": "GET"
+}
