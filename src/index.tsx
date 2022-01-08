@@ -9,7 +9,9 @@ import { RecoilRoot } from "recoil";
 ReactDOM.render(
   <React.StrictMode>
     <RecoilRoot>
-      <BrowserRouter>
+      <BrowserRouter
+        basename={process.env.NODE_ENV === "production" ? "/topia-tools" : "/"}
+      >
         <App />
       </BrowserRouter>
     </RecoilRoot>

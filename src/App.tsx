@@ -12,7 +12,7 @@ const App: FunctionComponent = () => {
       <Global />
       <Routes>
         <Route path="/" element={<SearchPage />} />
-        <Route path="users/:userId" element={<UserPage />} />
+        <Route path="/users/:userId" element={<UserPage />} />
       </Routes>
     </>
   );
