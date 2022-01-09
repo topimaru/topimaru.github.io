@@ -10,6 +10,7 @@ import { userCacheState, UserType } from "../recoil/users";
 import { useApi } from "../utils/api";
 import { removeDuplicatesOrderBy } from "../utils/array";
 import Link from "../components/Link";
+import ExternalLink from "../components/ExternalLink";
 
 type ExtendedUser = {
   id: number;
@@ -42,6 +43,7 @@ type Song = {
   id: number;
   title: string;
   artist: string;
+  url?: string;
 };
 
 interface Props {
@@ -79,7 +81,12 @@ const useLoadRepertory = (userId: number) => {
         { page }
       );
       setPage((p) => p + 1);
-      setItems((current) => [...current, ...repertory]);
+      setItems((current) =>
+        removeDuplicatesOrderBy(
+          [...current, ...repertory],
+          (song: Song) => song.id
+        )
+      );
       setHasNextPage(newHasNextPage);
     } catch (err) {
       setError(err as { status: number });
@@ -295,25 +302,32 @@ const UserPageComponent: FunctionComponent<Props> = ({
           <div className="overflow-y-auto overflow-x-hidden">
             <div className={`grid gap-3 px-4 ${gridCols[screenType]}`}>
               {repertory.items.map((song) => (
-                <div
-                  key={song.id}
-                  className="flex flex-col flex-1 gap-1 px-3 py-1 bg-gray-100 rounded-xl"
-                >
+                <ExternalLink to={song.url}>
                   <div
-                    className="overflow-hidden h-10 text-sm"
-                    style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      textOverflow: "ellipsis",
-                      WebkitBoxOrient: "vertical",
-                    }}
+                    key={song.id}
+                    className={`flex flex-col flex-1 gap-1 px-3 py-1 rounded-xl transition-colors ${
+                      song.url
+                        ? "bg-blue-100 hover:bg-blue-200 cursor-pointer"
+                        : "bg-gray-100"
+                    }`}
                   >
-                    {song.title}
+                    <div
+                      className="overflow-hidden h-10 text-sm"
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        textOverflow: "ellipsis",
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {song.url ? "🎤 " : ""}
+                      {song.title}
+                    </div>
+                    <div className="text-xs text-right text-gray-600 truncate">
+                      {song.artist}
+                    </div>
                   </div>
-                  <div className="text-xs text-right text-gray-600 truncate">
-                    {song.artist}
-                  </div>
-                </div>
+                </ExternalLink>
               ))}
             </div>
             {repertory.hasNextPage && (

@@ -2,7 +2,7 @@ import axios from "axios";
 import { Router } from "express";
 import jsonBigint from "json-bigint";
 
-import { removeDuplicatesBy } from "../util/array";
+import { removeDuplicatesBy, removeDuplicatesOrderBy } from "../util/array";
 import { api, getHeaders, tryOrRegenerateToken } from "../util/topia";
 
 const router = Router();
@@ -66,6 +66,7 @@ router.get("/:userId", async (req, res) => {
             // eslint-disable-next-line no-throw-literal
             throw { status: e.response.status };
           });
+
     const reservedRoom =
       response.reserved_room ?? response.user_room_reservation ?? null;
 
@@ -174,29 +175,56 @@ router.get("/:userId/repertory", async (req, res) => {
   const userId = parseInt(userIdString);
 
   try {
-    const response = await tryOrRegenerateToken(async ({ accessToken }) =>
-      api("GET /karaoke_songs", getHeaders(accessToken), {
-        favorite_by_user: userId,
-        artist_id: (req.query.artist_id as any) ?? 0,
-        genre_id: (req.query.genre_id as any) ?? 0,
-        match_name_also_to_artist:
-          (req.query.match_name_also_to_artist as any) ?? true,
-        original_key: (req.query.original_key as any) ?? 0,
-        has_original_key: (req.query.has_original_key as any) ?? false,
-        sort_by: (req.query.sort_by as any) ?? "popularity_desc",
-        page: (req.query.page as any) ?? 1,
-      })
+    const [songsResponse, postsResponse] = await tryOrRegenerateToken(
+      async ({ accessToken }) =>
+        Promise.all([
+          api("GET /karaoke_songs", getHeaders(accessToken), {
+            favorite_by_user: userId,
+            artist_id: (req.query.artist_id as any) ?? 0,
+            genre_id: (req.query.genre_id as any) ?? 0,
+            match_name_also_to_artist:
+              (req.query.match_name_also_to_artist as any) ?? true,
+            original_key: (req.query.original_key as any) ?? 0,
+            has_original_key: (req.query.has_original_key as any) ?? false,
+            sort_by: (req.query.sort_by as any) ?? "popularity_desc",
+            page: (req.query.page as any) ?? 1,
+          }),
+          api("GET /karaoke_posts", getHeaders(accessToken), {
+            user_id: userId,
+          }),
+        ])
     );
-    return res.status(200).json({
-      repertory: response.karaoke_songs.map((song) => ({
-        id: song.id,
-        title: song.name,
+
+    const songsRepertory = songsResponse.karaoke_songs.map((song) => ({
+      id: song.id,
+      title: song.name,
+      artist:
+        songsResponse.included.karaoke_song_artists.find(
+          (artist) => artist.id === song.artist_id
+        )?.name ?? "",
+    }));
+
+    const postsRepertory = postsResponse.karaoke_posts.map((post) => {
+      const song = postsResponse.included.karaoke_songs.find(
+        ({ id }) => id === post.karaoke_song_id
+      );
+      return {
+        id: post.karaoke_song_id,
+        title: song.name ?? "",
         artist:
-          response.included.karaoke_song_artists.find(
+          postsResponse.included.karaoke_song_artists.find(
             (artist) => artist.id === song.artist_id
           )?.name ?? "",
-      })),
-      hasNextPage: response.result_list_meta.next_page_available,
+        url: post.web_url,
+      };
+    });
+
+    return res.status(200).json({
+      repertory: removeDuplicatesOrderBy(
+        [...postsRepertory, ...songsRepertory],
+        (song) => song.id
+      ),
+      hasNextPage: songsResponse.result_list_meta.next_page_available,
     });
   } catch (e) {
     return res.status(e.status ?? 502).json({});

@@ -243,53 +243,72 @@ router.get("/:userId/ff", function (req, res) { return __awaiter(void 0, void 0,
     });
 }); });
 router.get("/:userId/repertory", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userIdString, userId, response_1, e_4;
-    var _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var userIdString, userId, _a, songsResponse_1, postsResponse_1, songsRepertory, postsRepertory, e_4;
+    var _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 userIdString = req.params.userId;
                 if (!userIdString || !/^\d+$/.test(userIdString)) {
                     return [2 /*return*/, res.status(404).json({})];
                 }
                 userId = parseInt(userIdString);
-                _b.label = 1;
+                _c.label = 1;
             case 1:
-                _b.trys.push([1, 3, , 4]);
+                _c.trys.push([1, 3, , 4]);
                 return [4 /*yield*/, (0, topia_1.tryOrRegenerateToken)(function (_a) {
                         var accessToken = _a.accessToken;
                         return __awaiter(void 0, void 0, void 0, function () {
                             var _b, _c, _d, _e, _f, _g, _h;
                             return __generator(this, function (_j) {
-                                return [2 /*return*/, (0, topia_1.api)("GET /karaoke_songs", (0, topia_1.getHeaders)(accessToken), {
-                                        favorite_by_user: userId,
-                                        artist_id: (_b = req.query.artist_id) !== null && _b !== void 0 ? _b : 0,
-                                        genre_id: (_c = req.query.genre_id) !== null && _c !== void 0 ? _c : 0,
-                                        match_name_also_to_artist: (_d = req.query.match_name_also_to_artist) !== null && _d !== void 0 ? _d : true,
-                                        original_key: (_e = req.query.original_key) !== null && _e !== void 0 ? _e : 0,
-                                        has_original_key: (_f = req.query.has_original_key) !== null && _f !== void 0 ? _f : false,
-                                        sort_by: (_g = req.query.sort_by) !== null && _g !== void 0 ? _g : "popularity_desc",
-                                        page: (_h = req.query.page) !== null && _h !== void 0 ? _h : 1
-                                    })];
+                                return [2 /*return*/, Promise.all([
+                                        (0, topia_1.api)("GET /karaoke_songs", (0, topia_1.getHeaders)(accessToken), {
+                                            favorite_by_user: userId,
+                                            artist_id: (_b = req.query.artist_id) !== null && _b !== void 0 ? _b : 0,
+                                            genre_id: (_c = req.query.genre_id) !== null && _c !== void 0 ? _c : 0,
+                                            match_name_also_to_artist: (_d = req.query.match_name_also_to_artist) !== null && _d !== void 0 ? _d : true,
+                                            original_key: (_e = req.query.original_key) !== null && _e !== void 0 ? _e : 0,
+                                            has_original_key: (_f = req.query.has_original_key) !== null && _f !== void 0 ? _f : false,
+                                            sort_by: (_g = req.query.sort_by) !== null && _g !== void 0 ? _g : "popularity_desc",
+                                            page: (_h = req.query.page) !== null && _h !== void 0 ? _h : 1
+                                        }),
+                                        (0, topia_1.api)("GET /karaoke_posts", (0, topia_1.getHeaders)(accessToken), {
+                                            user_id: userId
+                                        }),
+                                    ])];
                             });
                         });
                     })];
             case 2:
-                response_1 = _b.sent();
+                _a = _c.sent(), songsResponse_1 = _a[0], postsResponse_1 = _a[1];
+                songsRepertory = songsResponse_1.karaoke_songs.map(function (song) {
+                    var _a, _b;
+                    return ({
+                        id: song.id,
+                        title: song.name,
+                        artist: (_b = (_a = songsResponse_1.included.karaoke_song_artists.find(function (artist) { return artist.id === song.artist_id; })) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : ""
+                    });
+                });
+                postsRepertory = postsResponse_1.karaoke_posts.map(function (post) {
+                    var _a, _b, _c;
+                    var song = postsResponse_1.included.karaoke_songs.find(function (_a) {
+                        var id = _a.id;
+                        return id === post.karaoke_song_id;
+                    });
+                    return {
+                        id: post.karaoke_song_id,
+                        title: (_a = song.name) !== null && _a !== void 0 ? _a : "",
+                        artist: (_c = (_b = postsResponse_1.included.karaoke_song_artists.find(function (artist) { return artist.id === song.artist_id; })) === null || _b === void 0 ? void 0 : _b.name) !== null && _c !== void 0 ? _c : "",
+                        url: post.web_url
+                    };
+                });
                 return [2 /*return*/, res.status(200).json({
-                        repertory: response_1.karaoke_songs.map(function (song) {
-                            var _a, _b;
-                            return ({
-                                id: song.id,
-                                title: song.name,
-                                artist: (_b = (_a = response_1.included.karaoke_song_artists.find(function (artist) { return artist.id === song.artist_id; })) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : ""
-                            });
-                        }),
-                        hasNextPage: response_1.result_list_meta.next_page_available
+                        repertory: (0, array_1.removeDuplicatesOrderBy)(__spreadArray(__spreadArray([], postsRepertory, true), songsRepertory, true), function (song) { return song.id; }),
+                        hasNextPage: songsResponse_1.result_list_meta.next_page_available
                     })];
             case 3:
-                e_4 = _b.sent();
-                return [2 /*return*/, res.status((_a = e_4.status) !== null && _a !== void 0 ? _a : 502).json({})];
+                e_4 = _c.sent();
+                return [2 /*return*/, res.status((_b = e_4.status) !== null && _b !== void 0 ? _b : 502).json({})];
             case 4: return [2 /*return*/];
         }
     });

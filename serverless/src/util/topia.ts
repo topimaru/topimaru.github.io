@@ -55,6 +55,13 @@ export type API = {
     res: Repertory;
     query: undefined;
   };
+  "GET /karaoke_posts": {
+    req: Partial<{
+      user_id: number;
+    }>;
+    res: KaraokePosts;
+    query: undefined;
+  };
   "GET /users/search": {
     req: { nickname: String };
     res: UserSearch;
@@ -441,4 +448,36 @@ export type FFResponse = {
     current_page: number;
     next_page_available: boolean;
   };
+};
+
+export type KaraokePosts = {
+  karaoke_posts: KaraokePost[];
+  included: {
+    users: {
+      id: number;
+      nickname: string;
+      icon_url: string;
+    }[];
+    karaoke_songs: {
+      id: number;
+      artist_id: number;
+      name: string;
+    }[];
+    karaoke_song_artists: {
+      id: number;
+      name: string;
+    }[];
+  };
+};
+export type KaraokePost = {
+  id: number;
+  user_id: number;
+  karaoke_song_id: number;
+  audio_url: string;
+  comment: string;
+  ogp_image_url: string;
+  external_identifier: string;
+  firebase_dynamic_link: string;
+  web_url: string;
+  created_at: string;
 };
