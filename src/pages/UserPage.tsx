@@ -3,9 +3,11 @@ import useInfiniteScroll from "react-infinite-scroll-hook";
 import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import Spinner from "../components/Spinner";
+import User from "../components/User";
 
-import { userCacheState } from "../recoil/users";
+import { userCacheState, UserType } from "../recoil/users";
 import { useApi } from "../utils/api";
+import { removeDuplicatesOrderBy } from "../utils/array";
 
 type ExtendedUser = {
   id: number;
@@ -51,6 +53,14 @@ const useLoadRepertory = (userId: number) => {
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
   const [error, setError] = useState<{ status: number }>();
 
+  const initialize = () => {
+    setLoading(false);
+    setPage(1);
+    setItems([]);
+    setHasNextPage(true);
+    setError(undefined);
+  };
+
   async function loadMore() {
     setLoading(true);
     try {
@@ -60,7 +70,6 @@ const useLoadRepertory = (userId: number) => {
         `/users/${userId}/repertory`,
         { page }
       );
-      console.log(newHasNextPage);
       setPage((p) => p + 1);
       setItems((current) => [...current, ...repertory]);
       setHasNextPage(newHasNextPage);
@@ -71,7 +80,50 @@ const useLoadRepertory = (userId: number) => {
     }
   }
 
-  return { loading, items, hasNextPage, error, loadMore };
+  return { loading, items, hasNextPage, error, loadMore, initialize };
+};
+
+const useLoadFF = (userId: number) => {
+  const api = useApi();
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState<UserType[]>([]);
+  const [hasNextPage, setHasNextPage] = useState<boolean>(true);
+  const [error, setError] = useState<{ status: number }>();
+
+  const initialize = () => {
+    setLoading(false);
+    setPage(1);
+    setItems([]);
+    setHasNextPage(true);
+    setError(undefined);
+  };
+
+  async function loadMore() {
+    setLoading(true);
+    try {
+      if (!api) return;
+      const { follows, hasNextPage: newHasNextPage } = await api(
+        "GET",
+        `/users/${userId}/ff`,
+        { page }
+      );
+      setPage((p) => p + 1);
+      setItems((current) =>
+        removeDuplicatesOrderBy(
+          [...current, ...follows],
+          (user: UserType) => user.id
+        )
+      );
+      setHasNextPage(newHasNextPage);
+    } catch (err) {
+      setError(err as { status: number });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return { loading, items, hasNextPage, error, loadMore, initialize };
 };
 
 const UserPageComponent: FunctionComponent<Props> = ({
@@ -87,6 +139,20 @@ const UserPageComponent: FunctionComponent<Props> = ({
     onLoadMore: repertory.loadMore,
     disabled: !!repertory.error,
   });
+
+  const ff = useLoadFF(userId);
+  const [ffRef] = useInfiniteScroll({
+    loading: ff.loading,
+    hasNextPage: ff.hasNextPage,
+    onLoadMore: ff.loadMore,
+    disabled: !!ff.error,
+  });
+
+  useEffect(() => {
+    repertory.initialize();
+    ff.initialize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   return (
     <div className="flex flex-col pt-2 pb-4 w-full h-full">
@@ -145,13 +211,20 @@ const UserPageComponent: FunctionComponent<Props> = ({
           </div>
         </div>
         <div className="mt-2 w-full h-6 text-base font-bold leading-6 text-center">
-          レパートリー
+          レパートリー{" "}
+          {repertory.items.length === 0
+            ? ""
+            : `(${repertory.items.length}${repertory.hasNextPage ? "+" : ""})`}
         </div>
-        {repertory.items.length === 0 && repertory.loading ? (
-          <div className="flex justify-center items-center w-full h-full">
+        {repertory.items.length === 0 &&
+        (repertory.loading || repertory.hasNextPage) ? (
+          <div
+            className="flex justify-center items-center w-full h-full"
+            ref={repertoryRef}
+          >
             <Spinner className="w-6 h-6 text-gray-600" />
           </div>
-        ) : (
+        ) : repertory.items.length === 0 ? null : (
           <div className="overflow-y-auto overflow-x-hidden">
             <div className="grid grid-cols-2 gap-3 px-4">
               {repertory.items.map((song) => (
@@ -188,7 +261,10 @@ const UserPageComponent: FunctionComponent<Props> = ({
         )}
       </div>
       <div className="mt-2 w-full h-6 text-base font-bold leading-6 text-center">
-        FF
+        FF{" "}
+        {ff.items.length === 0
+          ? ""
+          : `(${ff.items.length}${ff.hasNextPage ? "+" : ""})`}
       </div>
       <div
         className="flex overflow-y-auto flex-wrap justify-evenly px-4 pt-4 w-full h-36"
@@ -197,18 +273,38 @@ const UserPageComponent: FunctionComponent<Props> = ({
             "linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent)",
         }}
       >
-        <div className="flex justify-center items-center w-full h-full">
-          <Spinner className="w-6 h-6 text-gray-600" />
-        </div>
-        {/* {new Array(30).fill(0).map((x, i) => (
-      <User
-        profileImage="https://firebasestorage.googleapis.com/v0/b/enlil-202912.appspot.com/o/user%2F413352%2Ficon%2Fb512d19d-5bd3-473b-b238-ff9545912af9.png?alt=media"
-        name="ルイくんルイくんルイくん"
-      />
-    ))}
-    {new Array(10).fill(0).map((x, i) => (
-      <User />
-    ))} */}
+        {ff.items.length === 0 && (ff.loading || ff.hasNextPage) ? (
+          <div
+            className="flex justify-center items-center w-full h-full"
+            ref={ffRef}
+          >
+            <Spinner className="w-6 h-6 text-gray-600" />
+          </div>
+        ) : ff.items.length === 0 ? null : (
+          <div className="overflow-y-auto overflow-x-hidden">
+            <div className="flex flex-wrap justify-evenly w-full">
+              {ff.items.map((user) => (
+                <User
+                  key={user.id}
+                  profileImage={user.profileImage}
+                  name={user.name}
+                  to={`/users/${user.id}`}
+                />
+              ))}
+              {new Array(10).fill(0).map((x, i) => (
+                <User key={i} />
+              ))}
+            </div>
+            {ff.hasNextPage && (
+              <div
+                className="flex justify-center items-center w-full h-12"
+                ref={ffRef}
+              >
+                <Spinner className="w-6 h-6 text-gray-600" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -227,7 +323,6 @@ const UserPage: FunctionComponent = () => {
     if (numericalUserId < 0) return;
     if (!api) return;
 
-    console.log("CALLED");
     api("GET", `/users/${numericalUserId}`).then((newUser: ExtendedUser) => {
       setUser(newUser);
     });

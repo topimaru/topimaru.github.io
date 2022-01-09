@@ -45,6 +45,7 @@ const User: FunctionComponent<Props> = ({
               onError={(e) => {
                 e.currentTarget.src =
                   "https://karaoke.topia.tv/IconProfileDefault.png";
+                e.currentTarget.style.backgroundColor = "#adadad";
               }}
               style={profileImage ? {} : { backgroundColor: "#adadad" }}
             />

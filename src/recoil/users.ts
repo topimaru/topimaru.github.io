@@ -47,9 +47,5 @@ export const setUsersCacheState = selector<UserType[]>({
       ...users,
       ...Object.fromEntries(newUsers.map((user) => [user.id, user])),
     }));
-
-    console.log({
-      ...Object.fromEntries(newUsers.map((user) => [user.id, user])),
-    });
   },
 });
