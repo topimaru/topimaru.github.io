@@ -31,7 +31,12 @@ const SearchInput: FunctionComponent<Props> = ({
         }
       }}
     />
-    <span className="absolute top-0 right-1 p-2 mt-2 h-10 cursor-pointer group">
+    <span
+      className="absolute top-0 right-1 p-2 mt-2 h-10 cursor-pointer group"
+      onClick={() => {
+        onSubmit(value);
+      }}
+    >
       <svg
         width="20"
         height="20"

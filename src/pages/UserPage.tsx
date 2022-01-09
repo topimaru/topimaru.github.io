@@ -1,13 +1,15 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import useInfiniteScroll from "react-infinite-scroll-hook";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
+import { useMediaQueries } from "@react-hook/media-query";
+
 import Spinner from "../components/Spinner";
 import User from "../components/User";
-
 import { userCacheState, UserType } from "../recoil/users";
 import { useApi } from "../utils/api";
 import { removeDuplicatesOrderBy } from "../utils/array";
+import Link from "../components/Link";
 
 type ExtendedUser = {
   id: number;
@@ -140,6 +142,14 @@ const UserPageComponent: FunctionComponent<Props> = ({
   tags,
   twitterProfile,
 }) => {
+  const { matches } = useMediaQueries({
+    two: "(min-width: 480px)",
+    three: "(min-width: 720px)",
+    four: "(min-width: 1024px)",
+  });
+  const gridCols = ["grid-cols-1", "grid-cols-2", "grid-cols-3", "grid-cols-4"];
+  const screenType = matches.four ? 3 : matches.three ? 2 : matches.two ? 1 : 0;
+
   const repertory = useLoadRepertory(userId);
   const [repertoryRef] = useInfiniteScroll({
     loading: repertory.loading,
@@ -156,6 +166,8 @@ const UserPageComponent: FunctionComponent<Props> = ({
     disabled: !!ff.error,
   });
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     repertory.initialize();
     ff.initialize();
@@ -165,12 +177,51 @@ const UserPageComponent: FunctionComponent<Props> = ({
   return (
     <div className="flex flex-col pt-2 pb-4 w-full h-full">
       <div className="mt-2 w-full h-6 text-base font-bold leading-6 text-center">
-        {name}
+        <span
+          className="absolute top-0 left-2 p-2 mt-2 h-10 cursor-pointer group"
+          onClick={() => navigate(-1)}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            className="text-gray-500 stroke-current stroke-2 group-hover:text-gray-700"
+          >
+            <path
+              d="M14 6l-6 6l6 6"
+              stroke="currentColor"
+              fill="none"
+              fillRule="evenodd"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+          </svg>
+        </span>
+        <span>{name}</span>
+        <Link to="/">
+          <span className="absolute top-0 right-2 p-2 mt-2 h-10 cursor-pointer group">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              className="text-gray-500 stroke-current stroke-2 group-hover:text-gray-700"
+            >
+              <path
+                d="M14.386 14.386l4.0877 4.0877-4.0877-4.0877c-2.9418 2.9419-7.7115 2.9419-10.6533 0-2.9419-2.9418-2.9419-7.7115 0-10.6533 2.9418-2.9419 7.7115-2.9419 10.6533 0 2.9419 2.9418 2.9419 7.7115 0 10.6533z"
+                stroke="currentColor"
+                fill="none"
+                fillRule="evenodd"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              ></path>
+            </svg>
+          </span>
+        </Link>
       </div>
       <div
         className="flex overflow-y-auto overflow-x-hidden flex-col gap-3 py-4 w-full h-full"
         style={{
-          maxHeight: "calc(100% - 12em)",
+          maxHeight: "calc(100% - 16em)",
           WebkitMaskImage:
             "linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent)",
         }}
@@ -242,7 +293,7 @@ const UserPageComponent: FunctionComponent<Props> = ({
           </div>
         ) : repertory.items.length === 0 ? null : (
           <div className="overflow-y-auto overflow-x-hidden">
-            <div className="grid grid-cols-2 gap-3 px-4">
+            <div className={`grid gap-3 px-4 ${gridCols[screenType]}`}>
               {repertory.items.map((song) => (
                 <div
                   key={song.id}
@@ -283,7 +334,7 @@ const UserPageComponent: FunctionComponent<Props> = ({
           : `(${ff.items.length}${ff.hasNextPage ? "+" : ""})`}
       </div>
       <div
-        className="flex overflow-y-auto flex-wrap justify-evenly px-4 pt-4 w-full h-36"
+        className="flex overflow-y-auto flex-wrap justify-evenly px-4 pt-4 w-full h-52"
         style={{
           WebkitMaskImage:
             "linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent)",
@@ -307,7 +358,7 @@ const UserPageComponent: FunctionComponent<Props> = ({
                   to={`/users/${user.id}`}
                 />
               ))}
-              {new Array(10).fill(0).map((x, i) => (
+              {new Array(30).fill(0).map((x, i) => (
                 <User key={i} />
               ))}
             </div>

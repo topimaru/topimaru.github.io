@@ -75,6 +75,7 @@ const SearchPage: FunctionComponent = () => {
       }`}
     >
       <SearchInput
+        placeholder="ニックネーム"
         value={input}
         onInput={setInput}
         onSubmit={async (value) => {
