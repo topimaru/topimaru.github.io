@@ -165,7 +165,7 @@ router.get("/:userId", function (req, res) { return __awaiter(void 0, void 0, vo
                                 id: reservedRoom.id,
                                 name: reservedRoom.name,
                                 date: reservedRoom.reserved_date,
-                                thumbnail: response.user_room.thumbnail_url
+                                thumbnail: reservedRoom.thumbnail_url
                             }
                             : null
                     })];

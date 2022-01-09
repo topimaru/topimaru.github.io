@@ -92,7 +92,7 @@ router.get("/:userId", async (req, res) => {
             id: reservedRoom.id,
             name: reservedRoom.name,
             date: reservedRoom.reserved_date,
-            thumbnail: response.user_room.thumbnail_url,
+            thumbnail: reservedRoom.thumbnail_url,
           }
         : null,
     });
