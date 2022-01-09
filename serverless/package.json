@@ -11,9 +11,12 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "firebase-admin": "^10.0.1",
+    "js-base64": "^3.7.2",
+    "json-bigint": "^1.0.0",
     "serverless-http": "^2.7.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.12"
+    "@types/cors": "^2.8.12",
+    "@types/json-bigint": "^1.0.1"
   }
 }

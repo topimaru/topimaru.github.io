@@ -1,5 +1,6 @@
 /* eslint-disable no-throw-literal */
 import axios, { Method } from "axios";
+import jsonBigint from "json-bigint";
 import { URLSearchParams } from "url";
 import { getTestClient, setAccessToken, TestClient } from "./firebase";
 
@@ -91,6 +92,9 @@ export async function api<T extends keyof API>(
       method: method as Method,
       headers,
       data: method === "GET" ? undefined : data,
+      transformResponse: (response: string) => {
+        return jsonBigint().parse(response);
+      },
     });
     return response.data;
   } catch (e) {

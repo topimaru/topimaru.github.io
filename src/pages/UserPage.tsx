@@ -16,7 +16,11 @@ type ExtendedUser = {
   profile: {
     message: string;
     tags: string[];
-    twitterId: number | null;
+    twitterProfile: {
+      id: number;
+      name: string;
+      username: string;
+    } | null;
   };
   room: {
     id: number;
@@ -43,6 +47,8 @@ interface Props {
   name: string;
   profileImage: string | null;
   message: string | null;
+  tags: string[];
+  twitterProfile: ExtendedUser["profile"]["twitterProfile"];
 }
 
 const useLoadRepertory = (userId: number) => {
@@ -131,6 +137,8 @@ const UserPageComponent: FunctionComponent<Props> = ({
   name,
   profileImage,
   message,
+  tags,
+  twitterProfile,
 }) => {
   const repertory = useLoadRepertory(userId);
   const [repertoryRef] = useInfiniteScroll({
@@ -182,12 +190,20 @@ const UserPageComponent: FunctionComponent<Props> = ({
                   "https://karaoke.topia.tv/IconProfileDefault.png";
               }}
             />
-            <img
-              alt="Twitterのアイコン"
-              title="Twitterのアイコン"
-              className="absolute right-0 bottom-0 w-8 h-8 rounded-full cursor-pointer"
-              src="/images/twitter.svg"
-            />
+            {twitterProfile ? (
+              <a
+                href={`https://twitter.com/${twitterProfile.username}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  alt="Twitterのアイコン"
+                  title="Twitterのアイコン"
+                  className="absolute right-0 bottom-0 w-8 h-8 rounded-full cursor-pointer"
+                  src="/images/twitter.svg"
+                />
+              </a>
+            ) : null}
           </div>
           <div className="flex-1 px-4 py-2 bg-gray-100 rounded-2xl overflow-y-clip">
             {message === null ? (
@@ -342,7 +358,9 @@ const UserPage: FunctionComponent = () => {
       userId={user.id}
       name={user.name}
       profileImage={user.profileImage}
-      message={user.profile?.message}
+      message={user.profile.message}
+      tags={user.profile.tags}
+      twitterProfile={user.profile.twitterProfile}
     />
   ) : cachedUser === null ? (
     <div className="flex flex-col justify-center items-center p-4 w-full h-full">
@@ -354,6 +372,8 @@ const UserPage: FunctionComponent = () => {
       name={cachedUser.name}
       profileImage={cachedUser.profileImage ?? null}
       message={null}
+      tags={[]}
+      twitterProfile={null}
     />
   );
 };

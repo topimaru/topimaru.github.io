@@ -44,16 +44,22 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var axios_1 = __importDefault(require("axios"));
 var express_1 = require("express");
+var json_bigint_1 = __importDefault(require("json-bigint"));
 var array_1 = require("../util/array");
 var topia_1 = require("../util/topia");
 var router = (0, express_1.Router)();
 router.get("/search", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result_1, e_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
+                _b.trys.push([0, 2, , 3]);
                 return [4 /*yield*/, (0, topia_1.tryOrRegenerateToken)(function (_a) {
                         var accessToken = _a.accessToken;
                         return __awaiter(void 0, void 0, void 0, function () {
@@ -66,7 +72,7 @@ router.get("/search", function (req, res) { return __awaiter(void 0, void 0, voi
                         });
                     })];
             case 1:
-                result_1 = _a.sent();
+                result_1 = _b.sent();
                 return [2 /*return*/, res.status(200).json(result_1.users.map(function (user) {
                         var _a, _b;
                         return ({
@@ -77,26 +83,27 @@ router.get("/search", function (req, res) { return __awaiter(void 0, void 0, voi
                         });
                     }))];
             case 2:
-                e_1 = _a.sent();
-                return [2 /*return*/, res.status(e_1.status).json({})];
+                e_1 = _b.sent();
+                return [2 /*return*/, res.status((_a = e_1.status) !== null && _a !== void 0 ? _a : 502).json({})];
             case 3: return [2 /*return*/];
         }
     });
 }); });
 router.get("/:userId", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userIdString, userId, response, reservedRoom, e_2;
-    var _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
+    var userIdString, userId, twitterAccessToken, response, twitterProfile, _a, reservedRoom, e_2;
+    var _b, _c, _d;
+    return __generator(this, function (_e) {
+        switch (_e.label) {
             case 0:
                 userIdString = req.params.userId;
                 if (!userIdString || !/^\d+$/.test(userIdString)) {
                     return [2 /*return*/, res.status(404).json({})];
                 }
                 userId = parseInt(userIdString);
-                _c.label = 1;
+                _e.label = 1;
             case 1:
-                _c.trys.push([1, 3, , 4]);
+                _e.trys.push([1, 6, , 7]);
+                twitterAccessToken = process.env.TWITTER_TOKEN;
                 return [4 /*yield*/, (0, topia_1.tryOrRegenerateToken)(function (_a) {
                         var accessToken = _a.accessToken;
                         return __awaiter(void 0, void 0, void 0, function () {
@@ -108,8 +115,34 @@ router.get("/:userId", function (req, res) { return __awaiter(void 0, void 0, vo
                         });
                     })];
             case 2:
-                response = _c.sent();
-                reservedRoom = (_b = (_a = response.reserved_room) !== null && _a !== void 0 ? _a : response.user_room_reservation) !== null && _b !== void 0 ? _b : null;
+                response = _e.sent();
+                if (!!response.user_profile.twitter_id) return [3 /*break*/, 3];
+                _a = null;
+                return [3 /*break*/, 5];
+            case 3: return [4 /*yield*/, axios_1["default"]
+                    .request({
+                    method: "GET",
+                    url: "https://api.twitter.com/2/users/".concat(response.user_profile.twitter_id),
+                    headers: {
+                        Authorization: "Bearer ".concat(twitterAccessToken)
+                    },
+                    transformResponse: function (response) {
+                        return (0, json_bigint_1["default"])().parse(response);
+                    }
+                })
+                    .then(function (response) {
+                    var _a;
+                    return (_a = response.data.data) !== null && _a !== void 0 ? _a : null;
+                })["catch"](function (e) {
+                    // eslint-disable-next-line no-throw-literal
+                    throw { status: e.response.status };
+                })];
+            case 4:
+                _a = _e.sent();
+                _e.label = 5;
+            case 5:
+                twitterProfile = _a;
+                reservedRoom = (_c = (_b = response.reserved_room) !== null && _b !== void 0 ? _b : response.user_room_reservation) !== null && _c !== void 0 ? _c : null;
                 return [2 /*return*/, res.status(200).json({
                         id: response.user.id,
                         name: response.user.nickname,
@@ -117,7 +150,7 @@ router.get("/:userId", function (req, res) { return __awaiter(void 0, void 0, vo
                         profile: {
                             message: response.user_profile.message,
                             tags: response.user_profile.interest_tags,
-                            twitterId: response.user_profile.twitter_id
+                            twitterProfile: twitterProfile
                         },
                         room: response.user_room
                             ? {
@@ -136,17 +169,18 @@ router.get("/:userId", function (req, res) { return __awaiter(void 0, void 0, vo
                             }
                             : null
                     })];
-            case 3:
-                e_2 = _c.sent();
-                return [2 /*return*/, res.status(e_2.status).json({})];
-            case 4: return [2 /*return*/];
+            case 6:
+                e_2 = _e.sent();
+                return [2 /*return*/, res.status((_d = e_2.status) !== null && _d !== void 0 ? _d : 502).json({})];
+            case 7: return [2 /*return*/];
         }
     });
 }); });
 router.get("/:userId/ff", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var userIdString, userId, page, _a, following, follower, ffIds, included_1, e_3;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 userIdString = req.params.userId;
                 if (!userIdString || !/^\d+$/.test(userIdString)) {
@@ -154,9 +188,9 @@ router.get("/:userId/ff", function (req, res) { return __awaiter(void 0, void 0,
                 }
                 userId = parseInt(userIdString);
                 page = req.query.page ? parseInt(req.query.page) : 1;
-                _b.label = 1;
+                _c.label = 1;
             case 1:
-                _b.trys.push([1, 3, , 4]);
+                _c.trys.push([1, 3, , 4]);
                 return [4 /*yield*/, (0, topia_1.tryOrRegenerateToken)(function (_a) {
                         var accessToken = _a.accessToken;
                         return __awaiter(void 0, void 0, void 0, function () {
@@ -172,7 +206,7 @@ router.get("/:userId/ff", function (req, res) { return __awaiter(void 0, void 0,
                         });
                     })];
             case 2:
-                _a = _b.sent(), following = _a[0], follower = _a[1];
+                _a = _c.sent(), following = _a[0], follower = _a[1];
                 ffIds = (0, array_1.removeDuplicatesBy)(__spreadArray(__spreadArray([], following.follows.map(function (_a) {
                     var followable_id = _a.followable_id;
                     return followable_id;
@@ -202,25 +236,26 @@ router.get("/:userId/ff", function (req, res) { return __awaiter(void 0, void 0,
                             follower.list_result_meta.next_page_available
                     })];
             case 3:
-                e_3 = _b.sent();
-                return [2 /*return*/, res.status(e_3.status).json({})];
+                e_3 = _c.sent();
+                return [2 /*return*/, res.status((_b = e_3.status) !== null && _b !== void 0 ? _b : 502).json({})];
             case 4: return [2 /*return*/];
         }
     });
 }); });
 router.get("/:userId/repertory", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var userIdString, userId, response_1, e_4;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 userIdString = req.params.userId;
                 if (!userIdString || !/^\d+$/.test(userIdString)) {
                     return [2 /*return*/, res.status(404).json({})];
                 }
                 userId = parseInt(userIdString);
-                _a.label = 1;
+                _b.label = 1;
             case 1:
-                _a.trys.push([1, 3, , 4]);
+                _b.trys.push([1, 3, , 4]);
                 return [4 /*yield*/, (0, topia_1.tryOrRegenerateToken)(function (_a) {
                         var accessToken = _a.accessToken;
                         return __awaiter(void 0, void 0, void 0, function () {
@@ -240,7 +275,7 @@ router.get("/:userId/repertory", function (req, res) { return __awaiter(void 0, 
                         });
                     })];
             case 2:
-                response_1 = _a.sent();
+                response_1 = _b.sent();
                 return [2 /*return*/, res.status(200).json({
                         repertory: response_1.karaoke_songs.map(function (song) {
                             var _a, _b;
@@ -253,8 +288,8 @@ router.get("/:userId/repertory", function (req, res) { return __awaiter(void 0, 
                         hasNextPage: response_1.result_list_meta.next_page_available
                     })];
             case 3:
-                e_4 = _a.sent();
-                return [2 /*return*/, res.status(e_4.status).json({})];
+                e_4 = _b.sent();
+                return [2 /*return*/, res.status((_a = e_4.status) !== null && _a !== void 0 ? _a : 502).json({})];
             case 4: return [2 /*return*/];
         }
     });

@@ -1,6 +1,8 @@
+import axios from "axios";
 import { Router } from "express";
-import { removeDuplicatesBy } from "../util/array";
+import jsonBigint from "json-bigint";
 
+import { removeDuplicatesBy } from "../util/array";
 import { api, getHeaders, tryOrRegenerateToken } from "../util/topia";
 
 const router = Router();
@@ -23,7 +25,7 @@ router.get("/search", async (req, res) => {
       }))
     );
   } catch (e) {
-    return res.status(e.status).json({});
+    return res.status(e.status ?? 502).json({});
   }
 });
 
@@ -36,12 +38,34 @@ router.get("/:userId", async (req, res) => {
   const userId = parseInt(userIdString);
 
   try {
+    const twitterAccessToken = process.env.TWITTER_TOKEN;
+
     const response = await tryOrRegenerateToken(async ({ accessToken }) =>
       api("GET /users/:userId", getHeaders(accessToken), undefined, {
         userId,
       })
     );
 
+    const twitterProfile = !response.user_profile.twitter_id
+      ? null
+      : await axios
+          .request({
+            method: "GET",
+            url: `https://api.twitter.com/2/users/${response.user_profile.twitter_id}`,
+            headers: {
+              Authorization: `Bearer ${twitterAccessToken}`,
+            },
+            transformResponse: (response: string) => {
+              return jsonBigint().parse(response);
+            },
+          })
+          .then((response) => {
+            return response.data.data ?? null;
+          })
+          .catch((e) => {
+            // eslint-disable-next-line no-throw-literal
+            throw { status: e.response.status };
+          });
     const reservedRoom =
       response.reserved_room ?? response.user_room_reservation ?? null;
 
@@ -52,7 +76,7 @@ router.get("/:userId", async (req, res) => {
       profile: {
         message: response.user_profile.message,
         tags: response.user_profile.interest_tags,
-        twitterId: response.user_profile.twitter_id,
+        twitterProfile,
       },
       room: response.user_room
         ? {
@@ -72,7 +96,7 @@ router.get("/:userId", async (req, res) => {
         : null,
     });
   } catch (e) {
-    return res.status(e.status).json({});
+    return res.status(e.status ?? 502).json({});
   }
 });
 
@@ -137,7 +161,7 @@ router.get("/:userId/ff", async (req, res) => {
         follower.list_result_meta.next_page_available,
     });
   } catch (e) {
-    return res.status(e.status).json({});
+    return res.status(e.status ?? 502).json({});
   }
 });
 
@@ -175,7 +199,7 @@ router.get("/:userId/repertory", async (req, res) => {
       hasNextPage: response.result_list_meta.next_page_available,
     });
   } catch (e) {
-    return res.status(e.status).json({});
+    return res.status(e.status ?? 502).json({});
   }
 });
 

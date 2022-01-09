@@ -53,6 +53,7 @@ exports.__esModule = true;
 exports.tryOrRegenerateToken = exports.api = exports.getHeaders = void 0;
 /* eslint-disable no-throw-literal */
 var axios_1 = __importDefault(require("axios"));
+var json_bigint_1 = __importDefault(require("json-bigint"));
 var url_1 = require("url");
 var firebase_1 = require("./firebase");
 var clientVersion = "9999.9999.9999";
@@ -84,7 +85,10 @@ function api(endpoint, headers, data, query) {
                                 : ""),
                             method: method,
                             headers: headers,
-                            data: method === "GET" ? undefined : data
+                            data: method === "GET" ? undefined : data,
+                            transformResponse: function (response) {
+                                return (0, json_bigint_1["default"])().parse(response);
+                            }
                         })];
                 case 2:
                     response = _b.sent();
