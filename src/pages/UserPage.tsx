@@ -234,47 +234,49 @@ const UserPageComponent: FunctionComponent<Props> = ({
         }}
       >
         <div className="flex gap-4 px-4 w-full h-20">
-          <div className="relative flex-grow-0 flex-shrink-0 w-20 h-20">
-            <img
-              alt={`${name}さんのアイコン`}
-              title={`${name}さんのアイコン`}
-              className="rounded-3xl"
-              src={
-                profileImage ??
-                "https://karaoke.topia.tv/IconProfileDefault.png"
-              }
-              onError={(e) => {
-                e.currentTarget.src =
-                  "https://karaoke.topia.tv/IconProfileDefault.png";
-              }}
-            />
-            {twitterProfile ? (
-              <a
-                href={`https://twitter.com/${twitterProfile.username}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <img
-                  alt="Twitterのアイコン"
-                  title="Twitterのアイコン"
-                  className="absolute right-0 bottom-0 w-8 h-8 rounded-full cursor-pointer"
-                  src="/images/twitter.svg"
-                />
-              </a>
-            ) : null}
-            {!!room && (
-              <span className="flex absolute -top-1 -right-1 w-5 h-5">
-                <span
-                  style={{ backgroundColor: "#ff4556" }}
-                  className="inline-flex absolute w-full h-full rounded-full opacity-75 animate-ping"
-                ></span>
-                <span
-                  style={{ backgroundColor: "#ff4556" }}
-                  className="inline-flex relative w-5 h-5 rounded-full"
-                ></span>
-              </span>
-            )}
-          </div>
+          <ExternalLink to={room ?? undefined}>
+            <div className="relative flex-grow-0 flex-shrink-0 w-20 h-20">
+              <img
+                alt={`${name}さんのアイコン`}
+                title={`${name}さんのアイコン`}
+                className="rounded-3xl"
+                src={
+                  profileImage ??
+                  "https://karaoke.topia.tv/IconProfileDefault.png"
+                }
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "https://karaoke.topia.tv/IconProfileDefault.png";
+                }}
+              />
+              {twitterProfile ? (
+                <a
+                  href={`https://twitter.com/${twitterProfile.username}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    alt="Twitterのアイコン"
+                    title="Twitterのアイコン"
+                    className="absolute right-0 bottom-0 w-8 h-8 rounded-full cursor-pointer"
+                    src="/images/twitter.svg"
+                  />
+                </a>
+              ) : null}
+              {!!room && (
+                <span className="flex absolute -top-1 -right-1 w-5 h-5">
+                  <span
+                    style={{ backgroundColor: "#ff4556" }}
+                    className="inline-flex absolute w-full h-full rounded-full opacity-75 animate-ping"
+                  ></span>
+                  <span
+                    style={{ backgroundColor: "#ff4556" }}
+                    className="inline-flex relative w-5 h-5 rounded-full"
+                  ></span>
+                </span>
+              )}
+            </div>
+          </ExternalLink>
           <div className="flex-1 px-4 py-2 bg-gray-100 rounded-2xl overflow-y-clip">
             {message === null ? (
               <div className="flex justify-center items-center w-full h-full">
