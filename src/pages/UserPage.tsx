@@ -52,6 +52,7 @@ interface Props {
   profileImage: string | null;
   message: string | null;
   tags: string[];
+  room: string | null;
   twitterProfile: ExtendedUser["profile"]["twitterProfile"];
 }
 
@@ -147,6 +148,7 @@ const UserPageComponent: FunctionComponent<Props> = ({
   profileImage,
   message,
   tags,
+  room,
   twitterProfile,
 }) => {
   const { matches } = useMediaQueries({
@@ -229,8 +231,6 @@ const UserPageComponent: FunctionComponent<Props> = ({
         className="flex overflow-y-auto overflow-x-hidden flex-col gap-3 py-4 w-full h-full"
         style={{
           maxHeight: "calc(100% - 16em)",
-          WebkitMaskImage:
-            "linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent)",
         }}
       >
         <div className="flex gap-4 px-4 w-full h-20">
@@ -262,6 +262,18 @@ const UserPageComponent: FunctionComponent<Props> = ({
                 />
               </a>
             ) : null}
+            {!!room && (
+              <span className="flex absolute -top-1 -right-1 w-5 h-5">
+                <span
+                  style={{ backgroundColor: "#ff4556" }}
+                  className="inline-flex absolute w-full h-full rounded-full opacity-75 animate-ping"
+                ></span>
+                <span
+                  style={{ backgroundColor: "#ff4556" }}
+                  className="inline-flex relative w-5 h-5 rounded-full"
+                ></span>
+              </span>
+            )}
           </div>
           <div className="flex-1 px-4 py-2 bg-gray-100 rounded-2xl overflow-y-clip">
             {message === null ? (
@@ -299,7 +311,13 @@ const UserPageComponent: FunctionComponent<Props> = ({
             <Spinner className="w-6 h-6 text-gray-600" />
           </div>
         ) : repertory.items.length === 0 ? null : (
-          <div className="overflow-y-auto overflow-x-hidden">
+          <div
+            className="overflow-y-auto overflow-x-hidden py-4"
+            style={{
+              WebkitMaskImage:
+                "linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent)",
+            }}
+          >
             <div className={`grid gap-3 px-4 ${gridCols[screenType]}`}>
               {repertory.items.map((song) => (
                 <ExternalLink to={song.url}>
@@ -362,16 +380,30 @@ const UserPageComponent: FunctionComponent<Props> = ({
             <Spinner className="w-6 h-6 text-gray-600" />
           </div>
         ) : ff.items.length === 0 ? null : (
-          <div className="overflow-y-auto overflow-x-hidden">
+          <div className="overflow-y-auto overflow-x-hidden pt-4">
             <div className="flex flex-wrap justify-evenly w-full">
-              {ff.items.map((user) => (
-                <User
-                  key={user.id}
-                  profileImage={user.profileImage}
-                  name={user.name}
-                  to={`/users/${user.id}`}
-                />
-              ))}
+              {ff.items
+                .filter(({ room }) => !!room)
+                .map((user) => (
+                  <User
+                    key={user.id}
+                    profileImage={user.profileImage}
+                    name={user.name}
+                    to={`/users/${user.id}`}
+                    live={!!user.room}
+                  />
+                ))}
+              {ff.items
+                .filter(({ room }) => !room)
+                .map((user) => (
+                  <User
+                    key={user.id}
+                    profileImage={user.profileImage}
+                    name={user.name}
+                    to={`/users/${user.id}`}
+                    live={!!user.room}
+                  />
+                ))}
               {new Array(30).fill(0).map((x, i) => (
                 <User key={i} />
               ))}
@@ -425,6 +457,7 @@ const UserPage: FunctionComponent = () => {
       profileImage={user.profileImage}
       message={user.profile.message}
       tags={user.profile.tags}
+      room={user.room?.link ?? null}
       twitterProfile={user.profile.twitterProfile}
     />
   ) : cachedUser === null ? (
@@ -438,6 +471,7 @@ const UserPage: FunctionComponent = () => {
       profileImage={cachedUser.profileImage ?? null}
       message={null}
       tags={[]}
+      room={null}
       twitterProfile={null}
     />
   );

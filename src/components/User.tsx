@@ -6,12 +6,14 @@ interface Props {
   name?: string;
   profileImage?: string;
   to?: string;
+  live?: boolean;
 }
 
 const User: FunctionComponent<Props> = ({
   name,
   profileImage,
   to,
+  live = false,
   big = false,
 }) =>
   name ? (
@@ -29,7 +31,9 @@ const User: FunctionComponent<Props> = ({
             big ? "gap-2" : "gap-1"
           }`}
         >
-          <div className={`mx-auto ${big ? "w-16 h-16" : "w-14 h-14"}`}>
+          <div
+            className={`relative mx-auto ${big ? "w-16 h-16" : "w-14 h-14"}`}
+          >
             <img
               alt={`${name}さんのアイコン`}
               title={`${name}さんのアイコン`}
@@ -49,6 +53,24 @@ const User: FunctionComponent<Props> = ({
               }}
               style={profileImage ? {} : { backgroundColor: "#adadad" }}
             />
+            {live && (
+              <span
+                className={`flex absolute ${
+                  big ? "-top-1 -right-1 w-5 h-5" : "-top-1 -right-1 w-4 h-4"
+                }`}
+              >
+                <span
+                  style={{ backgroundColor: "#ff4556" }}
+                  className="inline-flex absolute w-full h-full rounded-full opacity-75 animate-ping"
+                ></span>
+                <span
+                  style={{ backgroundColor: "#ff4556" }}
+                  className={`inline-flex relative  rounded-full ${
+                    big ? "w-5 h-5" : "w-4 h-4"
+                  }`}
+                ></span>
+              </span>
+            )}
           </div>
           <div
             className={`w-full ${

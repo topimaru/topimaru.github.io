@@ -35,12 +35,13 @@ const SearchList: FunctionComponent<{ data: UserType[] | null }> = ({ data }) =>
           "linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent)",
       }}
     >
-      {data.map(({ id, profileImage, name }, i) => (
+      {data.map(({ id, profileImage, name, room }, i) => (
         <User
           key={id}
           big
           profileImage={profileImage}
           name={name}
+          live={!!room}
           to={`/users/${id}`}
         />
       ))}
