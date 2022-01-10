@@ -177,6 +177,20 @@ const UserPageComponent: FunctionComponent<Props> = ({
 
   const navigate = useNavigate();
 
+  const htmlMessage =
+    message
+      ?.replace(/\n/g, "<br>")
+      .replace(/<color=(#[0-9a-f]{3,8})>/g, '<span style="color: $1">')
+      .replace(/<\/color>/g, "</span>")
+      .replace(
+        /<size=(\d+)>/g,
+        '<span style="font-size: calc(0.5px * $1); line-height: 110%;">'
+      )
+      .replace(/<size=(\d+)[^>]/g, "")
+      .replace(/<\/size>/g, "</span>") ?? "";
+
+  const [messageEnlarged, setMessageEnlarged] = useState(false);
+
   useEffect(() => {
     repertory.initialize();
     ff.initialize();
@@ -185,6 +199,35 @@ const UserPageComponent: FunctionComponent<Props> = ({
 
   return (
     <div className="flex flex-col pt-2 pb-4 w-full h-full">
+      {messageEnlarged && (
+        <div
+          className="flex absolute top-0 z-20 px-8 py-16 w-full h-full bg-gray-700 bg-opacity-20"
+          onClick={(e) => {
+            if (e.currentTarget === e.target) {
+              setMessageEnlarged(false);
+            }
+          }}
+          onKeyPress={(e) => {
+            if (e.key === "Escape") {
+              setMessageEnlarged(false);
+            }
+          }}
+        >
+          <div className="overflow-y-auto overflow-x-hidden p-8 w-full h-full text-center bg-white rounded-3xl">
+            <div className="mb-8">
+              {tags.map((tag, i) => (
+                <span
+                  className="px-2 py-1 mx-1.5 leading-8 rounded-md text-sm bg-gray-100"
+                  key={i}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <div dangerouslySetInnerHTML={{ __html: htmlMessage }} />
+          </div>
+        </div>
+      )}
       <div className="mt-2 w-full h-6 text-base font-bold leading-6 text-center">
         <span
           className="absolute top-0 left-2 p-2 mt-2 h-10 cursor-pointer group"
@@ -277,14 +320,19 @@ const UserPageComponent: FunctionComponent<Props> = ({
               )}
             </div>
           </ExternalLink>
-          <div className="flex-1 px-4 py-2 bg-gray-100 rounded-2xl overflow-y-clip">
+          <div
+            className="flex-1 px-4 py-2 bg-gray-100 rounded-2xl transition-colors cursor-pointer overflow-y-clip hover:bg-gray-200 group"
+            onClick={() => {
+              setMessageEnlarged(true);
+            }}
+          >
             {message === null ? (
               <div className="flex justify-center items-center w-full h-full">
                 <Spinner className="w-6 h-6 text-gray-600" />
               </div>
             ) : (
               <div
-                className="text-sm break-all overflow-y-clip"
+                className="text-sm text-center break-all overflow-y-clip"
                 style={{
                   minHeight: "100%",
                   maxHeight: "calc(100% + 8px)",
@@ -292,8 +340,21 @@ const UserPageComponent: FunctionComponent<Props> = ({
                     "linear-gradient(180deg, #000 60%, transparent)",
                 }}
               >
-                {/* TODO */}
-                {message}
+                <div className="mb-8">
+                  {tags.map((tag, i) => (
+                    <span
+                      className="px-2 py-1 mx-1.5 leading-8 rounded-md text-sm bg-gray-200 group-hover:bg-gray-300 transition-colors"
+                      key={i}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: htmlMessage,
+                  }}
+                />
               </div>
             )}
           </div>
