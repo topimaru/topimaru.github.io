@@ -22,12 +22,12 @@ export const getHeaders = (token?: string) => ({
 export type API = {
   "GET /self": {
     req: undefined;
-    res: ExtendedUser;
+    res: UserWithRoom;
     query: undefined;
   };
   "GET /users/:userId": {
     req: undefined;
-    res: ExtendedUser;
+    res: UserWithRoom;
     query: { userId: number };
   };
   "GET /v2/users/:userId/following_users": {
@@ -99,8 +99,12 @@ export async function api<T extends keyof API>(
       method: method as Method,
       headers,
       data: method === "GET" ? undefined : data,
-      transformResponse: (response: string) => {
-        return jsonBigint().parse(response);
+      transformResponse: (data: string) => {
+        try {
+          return jsonBigint().parse(data);
+        } catch (e) {
+          return data;
+        }
       },
     });
     return response.data;
@@ -267,7 +271,7 @@ export type MetaBadgeInfo = {
   now_daily_broadcasting_continuance: number;
 };
 
-export type ExtendedUser = {
+export type UserWithRoom = {
   user: User;
   earned_gift_points: {
     current_month: number;

@@ -7,7 +7,9 @@ frameworkVersion: "2"
 provider:
   name: aws
   runtime: nodejs12.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: "20201221"	
+  httpApi:
+    cors: true
   environment:
     FIREBASE_type: ${param:FIREBASE_type}
     FIREBASE_project_id: ${param:FIREBASE_project_id}
@@ -27,21 +29,20 @@ functions:
   api:
     handler: handler.handler
     events:
-      - http:
+      - httpApi:
           path: /
-          cors: true
           method: GET
-      - http:
+      - httpApi:
           path: /v1/users/{id}
-          cors: true
           method: GET
-      - http:
+      - httpApi:
           path: /v1/users/{id}/ff
-          cors: true
           method: GET
-      - http:
+      - httpApi:
           path: /v1/users/{id}/repertory
-          cors: true
           method: GET
+      - httpApi:
+          path: /v1/raw
+          method: '*'
 
 useDotenv: true

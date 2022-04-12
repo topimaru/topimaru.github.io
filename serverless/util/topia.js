@@ -86,8 +86,13 @@ function api(endpoint, headers, data, query) {
                             method: method,
                             headers: headers,
                             data: method === "GET" ? undefined : data,
-                            transformResponse: function (response) {
-                                return (0, json_bigint_1["default"])().parse(response);
+                            transformResponse: function (data) {
+                                try {
+                                    return (0, json_bigint_1["default"])().parse(data);
+                                }
+                                catch (e) {
+                                    return data;
+                                }
                             }
                         })];
                 case 2:

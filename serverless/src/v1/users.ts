@@ -25,7 +25,7 @@ router.get("/search", async (req, res) => {
       }))
     );
   } catch (e) {
-    return res.status(e.status ?? 502).json({});
+    return res.status(e.status ?? 502).json({ error: e.toString() });
   }
 });
 
@@ -64,7 +64,7 @@ router.get("/:userId", async (req, res) => {
           })
           .catch((e) => {
             // eslint-disable-next-line no-throw-literal
-            throw { status: e.response.status };
+            throw { status: e.response?.status ?? 502 };
           });
 
     const reservedRoom =
@@ -97,7 +97,7 @@ router.get("/:userId", async (req, res) => {
         : null,
     });
   } catch (e) {
-    return res.status(e.status ?? 502).json({});
+    return res.status(e.status ?? 502).json({ error: e.toString() });
   }
 });
 
@@ -162,7 +162,7 @@ router.get("/:userId/ff", async (req, res) => {
         follower.list_result_meta.next_page_available,
     });
   } catch (e) {
-    return res.status(e.status ?? 502).json({});
+    return res.status(e.status ?? 502).json({ error: e.toString() });
   }
 });
 
@@ -227,7 +227,7 @@ router.get("/:userId/repertory", async (req, res) => {
       hasNextPage: songsResponse.result_list_meta.next_page_available,
     });
   } catch (e) {
-    return res.status(e.status ?? 502).json({});
+    return res.status(e.status ?? 502).json({ error: e.toString() });
   }
 });
 

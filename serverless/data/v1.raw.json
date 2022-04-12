@@ -1,0 +1,7 @@
+{
+  "path": "/v1/raw",
+  "queryStringParameters": {
+    "url": "/users/3860"
+  },
+  "httpMethod": "GET"
+}

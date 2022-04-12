@@ -84,7 +84,7 @@ router.get("/search", function (req, res) { return __awaiter(void 0, void 0, voi
                     }))];
             case 2:
                 e_1 = _b.sent();
-                return [2 /*return*/, res.status((_a = e_1.status) !== null && _a !== void 0 ? _a : 502).json({})];
+                return [2 /*return*/, res.status((_a = e_1.status) !== null && _a !== void 0 ? _a : 502).json({ error: e_1.toString() })];
             case 3: return [2 /*return*/];
         }
     });
@@ -134,8 +134,9 @@ router.get("/:userId", function (req, res) { return __awaiter(void 0, void 0, vo
                     var _a;
                     return (_a = response.data.data) !== null && _a !== void 0 ? _a : null;
                 })["catch"](function (e) {
+                    var _a, _b;
                     // eslint-disable-next-line no-throw-literal
-                    throw { status: e.response.status };
+                    throw { status: (_b = (_a = e.response) === null || _a === void 0 ? void 0 : _a.status) !== null && _b !== void 0 ? _b : 502 };
                 })];
             case 4:
                 _a = _e.sent();
@@ -171,7 +172,7 @@ router.get("/:userId", function (req, res) { return __awaiter(void 0, void 0, vo
                     })];
             case 6:
                 e_2 = _e.sent();
-                return [2 /*return*/, res.status((_d = e_2.status) !== null && _d !== void 0 ? _d : 502).json({})];
+                return [2 /*return*/, res.status((_d = e_2.status) !== null && _d !== void 0 ? _d : 502).json({ error: e_2.toString() })];
             case 7: return [2 /*return*/];
         }
     });
@@ -237,7 +238,7 @@ router.get("/:userId/ff", function (req, res) { return __awaiter(void 0, void 0,
                     })];
             case 3:
                 e_3 = _c.sent();
-                return [2 /*return*/, res.status((_b = e_3.status) !== null && _b !== void 0 ? _b : 502).json({})];
+                return [2 /*return*/, res.status((_b = e_3.status) !== null && _b !== void 0 ? _b : 502).json({ error: e_3.toString() })];
             case 4: return [2 /*return*/];
         }
     });
@@ -308,7 +309,7 @@ router.get("/:userId/repertory", function (req, res) { return __awaiter(void 0, 
                     })];
             case 3:
                 e_4 = _c.sent();
-                return [2 /*return*/, res.status((_b = e_4.status) !== null && _b !== void 0 ? _b : 502).json({})];
+                return [2 /*return*/, res.status((_b = e_4.status) !== null && _b !== void 0 ? _b : 502).json({ error: e_4.toString() })];
             case 4: return [2 /*return*/];
         }
     });
