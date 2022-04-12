@@ -4,7 +4,7 @@ import { useRecoilValue } from "recoil";
 import { serverMajorVersionState } from "../recoil/version";
 
 export const host =
-  "https://3vqvwv089j.execute-api.us-east-1.amazonaws.com";
+  "https://blohjhi21f.execute-api.us-east-1.amazonaws.com";
 
 export const useApi = () => {
   const majorVersion = useRecoilValue(serverMajorVersionState);
