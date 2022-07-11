@@ -21,8 +21,6 @@ provider:
     FIREBASE_token_uri: ${param:FIREBASE_token_uri}
     FIREBASE_auth_provider_x509_cert_url: ${param:FIREBASE_auth_provider_x509_cert_url}
     FIREBASE_client_x509_cert_url: ${param:FIREBASE_client_x509_cert_url}
-    TWITTER_KEY: ${param:TWITTER_KEY}
-    TWITTER_SECRET: ${param:TWITTER_SECRET}
     TWITTER_TOKEN: ${param:TWITTER_TOKEN}
 
 functions:

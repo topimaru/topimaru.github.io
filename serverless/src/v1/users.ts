@@ -19,13 +19,12 @@ router.get("/search", async (req, res) => {
         id: user.id,
         profileImage: user.icon_url,
         name: user.nickname,
-        room:
-          result.opening_rooms.find((room) => room.user_id === user.id)
-            ?.firebase_dynamic_link ?? null,
-      }))
+        room: result.opening_rooms.find((room) => room.user_id === user.id)
+          ?.firebase_dynamic_link ?? null,
+      })),
     );
   } catch (e) {
-    return res.status(e.status ?? 502).json({ error: e.toString() });
+    return res.status(e.status ?? 502).json({ error: e });
   }
 });
 
@@ -44,31 +43,38 @@ router.get("/:userId", async (req, res) => {
       api("GET /users/:userId", getHeaders(accessToken), undefined, {
         userId,
       })
-    );
+    ).catch((e) => {
+      console.log(e)
+      throw e;
+    });
+    console.log("try or regen");
 
     const twitterProfile = !response.user_profile.twitter_id
       ? null
       : await axios
-          .request({
-            method: "GET",
-            url: `https://api.twitter.com/2/users/${response.user_profile.twitter_id}`,
-            headers: {
-              Authorization: `Bearer ${twitterAccessToken}`,
-            },
-            transformResponse: (response: string) => {
-              return jsonBigint().parse(response);
-            },
-          })
-          .then((response) => {
-            return response.data.data ?? null;
-          })
-          .catch((e) => {
-            // eslint-disable-next-line no-throw-literal
-            throw { status: e.response?.status ?? 502 };
-          });
+        .request({
+          method: "GET",
+          url:
+            `https://api.twitter.com/2/users/${response.user_profile.twitter_id}`,
+          headers: {
+            Authorization: `Bearer ${twitterAccessToken}`,
+          },
+          transformResponse: (response: string) => {
+            return jsonBigint().parse(response);
+          },
+        })
+        .then((response) => {
+          console.log(response.data.data);
+          return response.data.data ?? null;
+        })
+        .catch((e) => {
+          // eslint-disable-next-line no-throw-literal
+          console.log("Twitter api error", e.response?.status);
+          throw { status: e.response?.status ?? 502 };
+        });
 
-    const reservedRoom =
-      response.reserved_room ?? response.user_room_reservation ?? null;
+    const reservedRoom = response.reserved_room ??
+      response.user_room_reservation ?? null;
 
     return res.status(200).json({
       id: response.user.id,
@@ -81,23 +87,23 @@ router.get("/:userId", async (req, res) => {
       },
       room: response.user_room
         ? {
-            id: response.user_room.id,
-            name: response.user_room.name,
-            link: response.user_room.firebase_dynamic_link,
-            thumbnail: response.user_room.thumbnail_url,
-          }
+          id: response.user_room.id,
+          name: response.user_room.name,
+          link: response.user_room.firebase_dynamic_link,
+          thumbnail: response.user_room.thumbnail_url,
+        }
         : null,
       reservedRoom: reservedRoom
         ? {
-            id: reservedRoom.id,
-            name: reservedRoom.name,
-            date: reservedRoom.reserved_date,
-            thumbnail: reservedRoom.thumbnail_url,
-          }
+          id: reservedRoom.id,
+          name: reservedRoom.name,
+          date: reservedRoom.reserved_date,
+          thumbnail: reservedRoom.thumbnail_url,
+        }
         : null,
     });
   } catch (e) {
-    return res.status(e.status ?? 502).json({ error: e.toString() });
+    return res.status(e.status ?? 502).json({ error: e });
   }
 });
 
@@ -119,15 +125,15 @@ router.get("/:userId/ff", async (req, res) => {
             "GET /v2/users/:userId/following_users",
             getHeaders(accessToken),
             { page },
-            { userId }
+            { userId },
           ),
           api(
             "GET /v2/users/:userId/follower_users",
             getHeaders(accessToken),
             { page },
-            { userId }
+            { userId },
           ),
-        ])
+        ]),
     );
 
     const ffIds = removeDuplicatesBy(
@@ -135,7 +141,7 @@ router.get("/:userId/ff", async (req, res) => {
         ...following.follows.map(({ followable_id }) => followable_id),
         ...follower.follows.map(({ follower_id }) => follower_id),
       ],
-      (a) => a
+      (a) => a,
     );
     const included = {
       users: [...following.included.users, ...follower.included.users],
@@ -147,22 +153,20 @@ router.get("/:userId/ff", async (req, res) => {
 
     return res.status(200).json({
       follows: ffIds.map((ffId) => {
-        const user = included.users.find(({ id }) => id === ffId);
+        const user = included.users.find(({ id }) => id === ffId)!;
         return {
           id: ffId,
           profileImage: user.icon_url,
           name: user.nickname,
-          room:
-            included.opening_rooms.find((room) => room.user_id === user.id)
-              ?.firebase_dynamic_link ?? null,
+          room: included.opening_rooms.find((room) => room.user_id === user.id)
+            ?.firebase_dynamic_link ?? null,
         };
       }),
-      hasNextPage:
-        following.list_result_meta.next_page_available ||
+      hasNextPage: following.list_result_meta.next_page_available ||
         follower.list_result_meta.next_page_available,
     });
   } catch (e) {
-    return res.status(e.status ?? 502).json({ error: e.toString() });
+    return res.status(e.status ?? 502).json({ error: e });
   }
 });
 
@@ -192,29 +196,27 @@ router.get("/:userId/repertory", async (req, res) => {
           api("GET /karaoke_posts", getHeaders(accessToken), {
             user_id: userId,
           }),
-        ])
+        ]),
     );
 
     const songsRepertory = songsResponse.karaoke_songs.map((song) => ({
       id: song.id,
       title: song.name,
-      artist:
-        songsResponse.included.karaoke_song_artists.find(
-          (artist) => artist.id === song.artist_id
-        )?.name ?? "",
+      artist: songsResponse.included.karaoke_song_artists.find(
+        (artist) => artist.id === song.artist_id,
+      )?.name ?? "",
     }));
 
     const postsRepertory = postsResponse.karaoke_posts.map((post) => {
       const song = postsResponse.included.karaoke_songs.find(
-        ({ id }) => id === post.karaoke_song_id
-      );
+        ({ id }) => id === post.karaoke_song_id,
+      )!;
       return {
         id: post.karaoke_song_id,
         title: song.name ?? "",
-        artist:
-          postsResponse.included.karaoke_song_artists.find(
-            (artist) => artist.id === song.artist_id
-          )?.name ?? "",
+        artist: postsResponse.included.karaoke_song_artists.find(
+          (artist) => artist.id === song.artist_id,
+        )?.name ?? "",
         url: post.web_url,
       };
     });
@@ -222,12 +224,12 @@ router.get("/:userId/repertory", async (req, res) => {
     return res.status(200).json({
       repertory: removeDuplicatesOrderBy(
         [...postsRepertory, ...songsRepertory],
-        (song) => song.id
+        (song) => song.id,
       ),
       hasNextPage: songsResponse.result_list_meta.next_page_available,
     });
   } catch (e) {
-    return res.status(e.status ?? 502).json({ error: e.toString() });
+    return res.status(e.status ?? 502).json({ error: e });
   }
 });
 
